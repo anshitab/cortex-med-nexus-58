@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGroqChat } from "@/hooks/useGroqChat";
 import { cn } from "@/lib/utils";
+import { useAnalytics } from "@/context/AnalyticsContext";
 
 function TypingIndicator() {
   return (
@@ -34,6 +35,7 @@ export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const { messages, isLoading, sendMessage } = useGroqChat();
+  const { trackEvent } = useAnalytics();
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -51,6 +53,7 @@ export default function ChatWidget() {
 
   const handleSend = () => {
     if (!inputValue.trim() || isLoading) return;
+    trackEvent({ type: 'chatMessage', message: inputValue.trim(), timestamp: Date.now() });
     sendMessage(inputValue);
     setInputValue("");
   };
@@ -147,7 +150,11 @@ export default function ChatWidget() {
 
       {/* FAB button */}
       <button
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() => {
+        const opening = !isOpen;
+        setIsOpen(opening);
+        if (opening) trackEvent({ type: 'chatOpen', timestamp: Date.now() });
+      }}
         className="w-14 h-14 rounded-full bg-[#0047AB] hover:bg-[#003366] text-white shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center"
         aria-label={isOpen ? "Close chat" : "Open chat"}
       >
