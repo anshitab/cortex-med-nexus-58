@@ -10,8 +10,10 @@ import { ProductList } from '@/components/products/ProductList';
 import { ProductCTA } from '@/components/products/ProductCTA';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { useAnalytics } from '@/context/AnalyticsContext';
 
 const Products = () => {
+  const { trackEvent } = useAnalytics();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
@@ -56,6 +58,8 @@ const Products = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    if (searchTerm.trim())
+      trackEvent({ type: 'search', term: searchTerm.trim(), timestamp: Date.now() });
     setCurrentPage(1);
   };
 
@@ -72,8 +76,21 @@ const Products = () => {
   };
 
   const openProductDetails = (product: TabletProduct) => {
+    trackEvent({ type: 'productView', productId: product.id, productName: product.name, timestamp: Date.now() });
     setSelectedProduct(product);
     setIsDialogOpen(true);
+  };
+
+  const handleCategorySelect = (category: string | undefined) => {
+    if (category)
+      trackEvent({ type: 'filter', filterType: 'category', value: category, timestamp: Date.now() });
+    setSelectedCategory(category);
+  };
+
+  const handleTherapeuticAreaSelect = (area: string | undefined) => {
+    if (area)
+      trackEvent({ type: 'filter', filterType: 'therapeuticArea', value: area, timestamp: Date.now() });
+    setSelectedTherapeuticArea(area);
   };
 
   const handleTabChange = (value: string) => {
@@ -113,8 +130,8 @@ const Products = () => {
                   uniqueTherapeuticAreas={uniqueTherapeuticAreas}
                   selectedCategory={selectedCategory}
                   selectedTherapeuticArea={selectedTherapeuticArea}
-                  onCategorySelect={setSelectedCategory}
-                  onTherapeuticAreaSelect={setSelectedTherapeuticArea}
+                  onCategorySelect={handleCategorySelect}
+                  onTherapeuticAreaSelect={handleTherapeuticAreaSelect}
                   onClearFilters={clearFilters}
                   productDatabase={productDatabase}
                 />

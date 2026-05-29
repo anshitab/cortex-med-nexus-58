@@ -70,8 +70,9 @@ const Navbar = () => {
             <Link to="/products" className="text-cortex-darkBlue font-medium hover:text-cortex-blue transition-colors">Products</Link>
             <Link to="/services" className="text-cortex-darkBlue font-medium hover:text-cortex-blue transition-colors">Services</Link>
             <Link to="/careers" className="text-cortex-darkBlue font-medium hover:text-cortex-blue transition-colors">Careers</Link>
-            <a 
-              href="#contact" 
+            <Link to="/analytics" className="text-cortex-darkBlue font-medium hover:text-cortex-blue transition-colors">Analytics</Link>
+            <a
+              href="#contact"
               className="text-cortex-darkBlue font-medium hover:text-cortex-blue transition-colors"
               onClick={(e) => handleNavigation(e, 'contact')}
             >
@@ -108,7 +109,8 @@ const Navbar = () => {
           <Link to="/products" className="text-cortex-darkBlue font-medium hover:text-cortex-blue transition-colors py-2" onClick={toggleMenu}>Products</Link>
           <Link to="/services" className="text-cortex-darkBlue font-medium hover:text-cortex-blue transition-colors py-2" onClick={toggleMenu}>Services</Link>
           <Link to="/careers" className="text-cortex-darkBlue font-medium hover:text-cortex-blue transition-colors py-2" onClick={toggleMenu}>Careers</Link>
-          <a 
+          <Link to="/analytics" className="text-cortex-darkBlue font-medium hover:text-cortex-blue transition-colors py-2" onClick={toggleMenu}>Analytics</Link>
+          <a
             href="#contact" 
             className="text-cortex-darkBlue font-medium hover:text-cortex-blue transition-colors py-2" 
             onClick={(e) => handleNavigation(e, 'contact')}

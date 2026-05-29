@@ -26,26 +26,38 @@ const Contact = () => {
       [name]: value
     }));
   };
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        const { error } = await res.json();
+        throw new Error(error || 'Submission failed.');
+      }
+
       toast({
         title: "Inquiry Submitted",
         description: "Thank you for contacting CORTEX Medical Inc. We'll respond shortly!",
-        duration: 5000
+        duration: 5000,
       });
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        company: '',
-        message: ''
+      setFormData({ name: '', email: '', phone: '', company: '', message: '' });
+    } catch (err) {
+      toast({
+        title: "Submission Failed",
+        description: err instanceof Error ? err.message : 'Something went wrong. Please try again.',
+        variant: 'destructive',
+        duration: 5000,
       });
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
   return <section id="contact" className="py-20 bg-white relative overflow-hidden">
       <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-cortex-blue/5 rounded-full translate-x-1/4 -translate-y-1/4 blur-3xl"></div>
