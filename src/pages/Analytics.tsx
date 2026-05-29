@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, Filter, Search, MessageCircle, Bot, Sparkles, LogOut } from 'lucide-react';
 import { ANALYTICS_AUTH_KEY } from '@/pages/AnalyticsLogin';
@@ -165,17 +165,51 @@ function AIInsights({ data }: { data: AggregatedAnalytics }) {
 // --- Main page ---
 export default function Analytics() {
   const { getAnalytics, clearAnalytics } = useAnalytics();
-  const data = useMemo(() => getAnalytics(), [getAnalytics]);
   const navigate = useNavigate();
+
+  const [data, setData]       = useState<AggregatedAnalytics | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState('');
+
+  const loadData = () => {
+    const apiUrl = import.meta.env.VITE_API_URL;
+    if (!apiUrl) {
+      setData(getAnalytics());
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setFetchError('');
+    fetch(`${apiUrl}/api/analytics`)
+      .then(res => {
+        if (!res.ok) throw new Error(`Server error ${res.status}`);
+        return res.json();
+      })
+      .then(json => { setData(json); setLoading(false); })
+      .catch(() => {
+        setData(getAnalytics()); // fallback to localStorage
+        setFetchError('Could not reach server — showing local data.');
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => { loadData(); }, []);
+
+  const handleClear = () => {
+    clearAnalytics();
+    setData(null);
+    loadData();
+  };
 
   const handleLogout = () => {
     sessionStorage.removeItem(ANALYTICS_AUTH_KEY);
     navigate('/analytics/login');
   };
 
-  const isEmpty =
+  const isEmpty = !data || (
     data.totalSearches + data.totalFilterUses + data.totalProductViews +
-    data.totalChatOpens + data.totalChatMessages === 0;
+    data.totalChatOpens + data.totalChatMessages === 0
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -220,7 +254,7 @@ export default function Analytics() {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={clearAnalytics}>
+                    <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={handleClear}>
                       Clear Data
                     </AlertDialogAction>
                   </AlertDialogFooter>
@@ -228,7 +262,21 @@ export default function Analytics() {
               </AlertDialog>
             </div>
 
-            {isEmpty ? (
+            {fetchError && (
+              <p className="mb-6 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-4 py-2">
+                {fetchError}
+              </p>
+            )}
+
+            {loading ? (
+              <div className="flex items-center justify-center py-24 text-gray-400 gap-3">
+                <svg className="animate-spin h-5 w-5 text-cortex-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Loading analytics data...
+              </div>
+            ) : isEmpty ? (
               <div className="flex flex-col items-center justify-center py-24 text-gray-500">
                 <p className="text-xl font-medium">No analytics data yet.</p>
                 <p className="mt-2">
@@ -237,7 +285,7 @@ export default function Analytics() {
                   {' '}or use the chatbot to start generating data.
                 </p>
               </div>
-            ) : (
+            ) : data && (
               <>
                 {/* Stat cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-10">

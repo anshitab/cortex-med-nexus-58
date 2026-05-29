@@ -62,6 +62,15 @@ export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
       saveEvents(updated);
       return updated;
     });
+    // Fire-and-forget to backend
+    const apiUrl = import.meta.env.VITE_API_URL;
+    if (apiUrl) {
+      fetch(`${apiUrl}/api/analytics/event`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(event),
+      }).catch(() => {});
+    }
   }, []);
 
   const getAnalytics = useCallback((): AggregatedAnalytics => {
@@ -133,6 +142,10 @@ export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
   const clearAnalytics = useCallback(() => {
     setEvents([]);
     saveEvents([]);
+    const apiUrl = import.meta.env.VITE_API_URL;
+    if (apiUrl) {
+      fetch(`${apiUrl}/api/analytics`, { method: 'DELETE' }).catch(() => {});
+    }
   }, []);
 
   return (
