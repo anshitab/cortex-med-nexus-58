@@ -11,6 +11,8 @@ import Products from "./pages/Products";
 import Services from "./pages/Services";
 import NotFound from "./pages/NotFound";
 import Analytics from "./pages/Analytics";
+import AnalyticsLogin from "./pages/AnalyticsLogin";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { AnalyticsProvider } from "./context/AnalyticsContext";
 
 const queryClient = new QueryClient();
@@ -28,7 +30,8 @@ const App = () => (
             <Route path="/careers" element={<Careers />} />
             <Route path="/products" element={<Products />} />
             <Route path="/services" element={<Services />} />
-            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/analytics/login" element={<AnalyticsLogin />} />
+            <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
