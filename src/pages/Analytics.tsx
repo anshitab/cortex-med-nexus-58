@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Eye, Filter, Search, MessageCircle, Bot, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Eye, Filter, Search, MessageCircle, Bot, Sparkles, LogOut } from 'lucide-react';
+import { ANALYTICS_AUTH_KEY } from '@/pages/AnalyticsLogin';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Cell, PieChart, Pie, ResponsiveContainer,
@@ -164,6 +166,12 @@ function AIInsights({ data }: { data: AggregatedAnalytics }) {
 export default function Analytics() {
   const { getAnalytics, clearAnalytics } = useAnalytics();
   const data = useMemo(() => getAnalytics(), [getAnalytics]);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    sessionStorage.removeItem(ANALYTICS_AUTH_KEY);
+    navigate('/analytics/login');
+  };
 
   const isEmpty =
     data.totalSearches + data.totalFilterUses + data.totalProductViews +
@@ -174,11 +182,20 @@ export default function Analytics() {
       <Navbar />
 
       <div className="bg-cortex-darkBlue text-white py-16">
-        <div className="container mx-auto px-4 md:px-6">
-          <h1 className="text-4xl font-bold mb-2">Analytics Dashboard</h1>
-          <p className="text-blue-200 text-lg">
-            Product interaction and chatbot insights from your browsing session
-          </p>
+        <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Analytics Dashboard</h1>
+            <p className="text-blue-200 text-lg">
+              Product interaction and chatbot insights from your browsing session
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-colors"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </button>
         </div>
       </div>
 

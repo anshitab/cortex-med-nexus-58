@@ -159,11 +159,6 @@ const Services = () => {
                     ))}
                   </ul>
                   
-                  <Button 
-                    className="mt-auto w-full bg-cortex-blue hover:bg-cortex-darkBlue text-white"
-                  >
-                    Learn More <ArrowRight size={16} className="ml-1" />
-                  </Button>
                 </div>
               </div>
             ))}
